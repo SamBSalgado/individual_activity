@@ -11,22 +11,27 @@ Go to LeetCode and look for the problem #2670. Read the examples for a better un
 
 function distinctDifferenceArray(nums: number[]): number[] {
   const n = nums.length;
+  const prefixCount = new Map<number, number>();
+  const suffixCount = new Map<number, number>();
+  const diff = new Array(n);
 
-  if (n < 1 || n > 50) {
-      throw new Error("Length must be between 1 and 50");
+  for (const num of nums) { // conteo de sufijos
+    suffixCount.set(num, (suffixCount.get(num) || 0) + 1);
   }
 
-  let diff: Array<number> = []; // array de resultados
-  const prefixSet = new Set<number>(); // set para guardar los prefijos sin repetir
-
+  // iterar nums para calcular arreglo de diferencias
   for (let i = 0; i < n; i++) {
-      if (nums[i] < 1 || nums[i] > 50) {
-          throw new Error("Each number must be between 1 and 50");
-      }
-      
-      prefixSet.add(nums[i]); // añade el prefijo actual al set
-      const suffixSet = new Set(nums.slice(i + 1)); // crea el set para añadirle el sufijo de la iteracion
-      diff.push(prefixSet.size - suffixSet.size); // se agrega al array la diferencia entre prefijo y sufijo
+    prefixCount.set(nums[i], (prefixCount.get(nums[i]) || 0) + 1); // actualiza Map de conteo de prefijo
+    suffixCount.set(nums[i], suffixCount.get(nums[i])! - 1); //actualiza Map de conteo de sufijo
+
+    if (suffixCount.get(nums[i]) === 0) { // si el conteo de un elemento en el sufijo llega a 0
+      suffixCount.delete(nums[i]); // lo elimina del mapa
+    }
+
+    const prefixDistinct = prefixCount.size;
+    const suffixDistinct = suffixCount.size;
+    diff[i] = prefixDistinct - suffixDistinct; // se agrega a diff la diferencia entre prefijos y sufijos
   }
+
   return diff;
 };
